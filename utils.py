@@ -5,7 +5,6 @@ import trimesh
 from scipy.spatial import cKDTree
 
 def create_closest_point_grid(mesh, grid_resolution):
-    """为高效计算损失，预创建最近点查找网格。"""
     surface_points, _ = trimesh.sample.sample_surface(mesh, 100000)
     kdtree = cKDTree(surface_points)
     grid_min, grid_max = mesh.bounds
@@ -18,7 +17,6 @@ def create_closest_point_grid(mesh, grid_resolution):
     return torch.from_numpy(closest_point_grid.astype(np.float32)), torch.from_numpy(grid_min.astype(np.float32)), torch.from_numpy(grid_max.astype(np.float32))
 
 def preprocess_mesh(mesh, voxel_resolution, n_points):
-    """对模型进行标准化、体素化、采样并创建查找网格。"""
     scale = 1.0 / np.max(mesh.extents)
     mesh.apply_scale(scale)
     mesh.apply_translation(-mesh.centroid)
@@ -30,7 +28,6 @@ def preprocess_mesh(mesh, voxel_resolution, n_points):
     return voxel_tensor, points_tensor, closest_point_grid, grid_min, grid_max
 
 def validate_planes(pred_planes, surface_points, error_threshold, angle_threshold_rad):
-    """根据对称误差和夹角，过滤预测的平面 (参考论文 Sec. 5)。"""
     valid_planes, plane_errors = [], []
     for plane_params in pred_planes:
         normal, d = plane_params[:3], plane_params[3]

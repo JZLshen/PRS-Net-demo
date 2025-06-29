@@ -1,7 +1,8 @@
+import torch
 import torch.nn as nn
+import torch.nn.functional as F
 
 class PRSNet(nn.Module):
-    """PRS-Net 网络架构 (参考论文 Sec. 3)"""
     def __init__(self):
         super(PRSNet, self).__init__()
         self.encoder = nn.Sequential(
@@ -18,6 +19,13 @@ class PRSNet(nn.Module):
         )
 
     def forward(self, x):
-        x = self.encoder(x)
-        x = x.view(x.size(0), -1)
-        return self.fc(x).view(-1, 3, 4)
+        params = self.encoder(x)
+        params = params.view(params.size(0), -1)
+        params = self.fc(params).view(-1, 3, 4)
+        
+        normals = params[:, :, :3]
+        distances = params[:, :, 3:]
+        
+        normalized_normals = F.normalize(normals, p=2, dim=2)
+        
+        return torch.cat([normalized_normals, distances], dim=2)

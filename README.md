@@ -8,13 +8,13 @@
 
 ```
 prs-net-project/
-├── train.py        # 主训练脚本，程序的入口
-├── model.py        # PRS-Net 网络架构的定义
-├── loss.py         # 对称损失函数的实现
-├── utils.py        # 数据处理和验证等辅助函数
-├── config.py       # 包含所有的超参数和配置信息
-├── requirements.txt# 项目依赖库
-└── README.md       # 项目说明文件
+├── train.py
+├── model.py
+├── loss.py
+├── utils.py
+├── config.py
+├── requirements.txt
+└── README.md
 ```
 
 ## 环境设置
@@ -22,7 +22,9 @@ prs-net-project/
 本项目在Python 3.13环境下运行。
 
 1.  **克隆或下载项目代码**
-
+    ```bash
+    git clone https://github.com/JZLshen/PRS-Net-demo.git
+    ```
 2.  **安装依赖**
     在项目根目录下，使用 `pip` 安装所有必需的库：
     ```bash
@@ -39,7 +41,7 @@ python train.py
 
 ## 文件说明
 
-* **`config.py`**: 存储所有全局配置和超参数，方便统一管理和修改。
+* **`config.py`**: 存储所有全局配置和超参数。
 * **`model.py`**: 定义 `PRSNet` 神经网络的结构。
 * **`loss.py`**: 实现核心的 `SymmetryLoss`，包含对称距离损失和正则化损失。
 * **`utils.py`**: 包含数据预处理（体素化、点采样）和结果验证（根据误差和角度过滤）等辅助功能。
