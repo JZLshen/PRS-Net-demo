@@ -1,4 +1,4 @@
-# PRS-Net 复现项目
+# PRS-Net 复现
 
 本项目是论文 **"PRS-Net: Planar Reflective Symmetry Detection Net for 3D Models"** 的一个非官方PyTorch实现。
 
