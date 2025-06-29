@@ -4,18 +4,6 @@
 
 该项目旨在复现论文的核心思想，包括其无监督学习框架、独特的损失函数以及验证逻辑。
 
-## 项目结构
-
-```
-prs-net-project/
-├── train.py
-├── model.py
-├── loss.py
-├── utils.py
-├── config.py
-├── requirements.txt
-└── README.md
-```
 
 ## 环境设置
 
