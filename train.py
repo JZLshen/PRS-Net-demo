@@ -6,7 +6,7 @@ import numpy as np
 import config
 from model import PRSNet
 from loss import SymmetryLoss
-from utils import preprocess_mesh, validate_planes
+from utils import preprocess_mesh, validate_planes, validate_axes
 
 
 def initialize_weights(model):
@@ -48,36 +48,29 @@ def initialize_weights(model):
 
 def main():
     device = torch.device(config.DEVICE if torch.cuda.is_available() else "cpu")
-    print(f"Using device: {device}")
 
-    # 使用一个更复杂的模型来测试，比如长方体
     mesh = trimesh.creation.box(extents=[1.0, 2.0, 3.0])
     voxel_input, surface_points, closest_point_grid, grid_min, grid_max = (
         preprocess_mesh(mesh, config.VOXEL_RESOLUTION, config.N_SAMPLE_POINTS)
     )
-    # 将所有数据移动到设备
+
     voxel_input = voxel_input.to(device)
     surface_points = surface_points.to(device)
     closest_point_grid = closest_point_grid.to(device)
     grid_min = grid_min.to(device)
     grid_max = grid_max.to(device)
-
     model = PRSNet().to(device)
 
-    # 注意：权重初始化对于这种多头结构可能很棘手，需要微调
-    # initialize_weights(model)
+    initialize_weights(model)
 
     criterion = SymmetryLoss(w_r=config.W_R)
     optimizer = optim.Adam(model.parameters(), lr=config.LEARNING_RATE)
 
-    print("Starting training with the full PRS-Net model...")
     for epoch in range(config.EPOCHS):
         model.train()
 
-        # 模型现在返回平面和轴
         pred_planes, pred_axes = model(voxel_input)
 
-        # 损失函数现在需要接收平面和轴
         loss, loss_sd, loss_r = criterion(
             pred_planes,
             pred_axes,
@@ -95,8 +88,6 @@ def main():
             print(
                 f"Epoch [{epoch+1}/{config.EPOCHS}], Loss: {loss.item():.6f}, SD_Loss: {loss_sd.item():.6f}, R_Loss: {loss_r.item():.6f}"
             )
-
-    print("\nTraining finished.")
 
     model.eval()
     with torch.no_grad():
@@ -121,6 +112,15 @@ def main():
             print(plane)
     else:
         print("No valid symmetry planes found.")
+    validated_axes = validate_axes(final_pred_axes[0], surface_points,
+                                    config.VALIDATION_ERROR_THRESHOLD,
+                                    config.VALIDATION_ANGLE_THRESHOLD_RAD)
+
+    print(f"\nValidated axes ({len(validated_axes)} found):")
+    if validated_axes:
+        for axis in validated_axes: print(axis)
+    else:
+        print("No valid symmetry axes found.")
 
 
 if __name__ == "__main__":
